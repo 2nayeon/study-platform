@@ -1,5 +1,7 @@
 package com.studyplatform.backend.user.controller;
 
+import com.studyplatform.backend.user.dto.LoginRequest;
+import com.studyplatform.backend.user.dto.LoginResponse;
 import com.studyplatform.backend.user.dto.SignupRequest;
 import com.studyplatform.backend.user.dto.SignupResponse;
 import com.studyplatform.backend.user.service.UserService;
@@ -19,5 +21,10 @@ public class UserController {
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         SignupResponse response = userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(request));
     }
 }
