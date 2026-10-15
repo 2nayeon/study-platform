@@ -2,11 +2,9 @@ package com.studyplatform.backend.user.service;
 
 import com.studyplatform.backend.global.exception.DuplicationException;
 import com.studyplatform.backend.global.exception.LoginFailedException;
+import com.studyplatform.backend.global.exception.NotFoundException;
 import com.studyplatform.backend.global.jwt.JwtProvider;
-import com.studyplatform.backend.user.dto.LoginRequest;
-import com.studyplatform.backend.user.dto.LoginResponse;
-import com.studyplatform.backend.user.dto.SignupRequest;
-import com.studyplatform.backend.user.dto.SignupResponse;
+import com.studyplatform.backend.user.dto.*;
 import com.studyplatform.backend.user.entity.User;
 import com.studyplatform.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +48,12 @@ public class UserService {
 
         String accessToken = jwtProvider.createAccessToken(user.getId());
         return new LoginResponse(accessToken);
+    }
+
+    public MyInfoResponse getMyInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+
+        return MyInfoResponse.from(user);
     }
 }

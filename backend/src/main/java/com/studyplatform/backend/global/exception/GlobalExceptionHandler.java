@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return toResponse(HttpStatus.BAD_REQUEST, message);
     }
 
+    // 404 Not Found
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+        return toResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
     private ResponseEntity<ErrorResponse> toResponse(HttpStatus status, String message) {
         return ResponseEntity
                 .status(status)
