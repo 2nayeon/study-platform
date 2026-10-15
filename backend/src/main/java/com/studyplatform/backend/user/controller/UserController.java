@@ -1,12 +1,12 @@
 package com.studyplatform.backend.user.controller;
 
-import com.studyplatform.backend.user.dto.SignupRequest;
-import com.studyplatform.backend.user.dto.SignupResponse;
+import com.studyplatform.backend.user.dto.*;
 import com.studyplatform.backend.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,5 +19,15 @@ public class UserController {
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         SignupResponse response = userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(request));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyInfoResponse> getMyInfo(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(userService.getMyInfo(userId));
     }
 }
