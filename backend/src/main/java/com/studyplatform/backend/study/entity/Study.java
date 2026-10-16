@@ -54,11 +54,11 @@ public class Study extends BaseTimeEntity {
     private int viewCount;
 
     @Builder
-    private Study(User leader, String titile, String content,
+    private Study(User leader, String title, String content,
                   StudyCategory category, StudyMode mode, String region,
                   int maxMembers, LocalDate deadline) {
         this.leader = leader;
-        this.title = titile;
+        this.title = title;
         this.content = content;
         this.category = category;
         this.mode = mode;

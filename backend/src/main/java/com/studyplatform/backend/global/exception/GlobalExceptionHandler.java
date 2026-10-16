@@ -3,6 +3,7 @@ package com.studyplatform.backend.global.exception;
 import com.studyplatform.backend.global.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
         return toResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    //400 Bad Request: Service에서 판단한 잘못된 요청
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException e) {
+        return toResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    // 400 Bad Request: JSON 형식 오류, enum/날짜 변환 실패
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e) {
+        return toResponse(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
     }
 
     private ResponseEntity<ErrorResponse> toResponse(HttpStatus status, String message) {
