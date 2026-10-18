@@ -4,6 +4,7 @@ import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.study.dto.StudyCreateRequest;
 import com.studyplatform.backend.study.dto.StudyDetailResponse;
 import com.studyplatform.backend.study.dto.StudySummaryResponse;
+import com.studyplatform.backend.study.dto.StudyUpdateRequest;
 import com.studyplatform.backend.study.service.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,21 @@ public class StudyController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(studyService.getStudies(page, size));
+    }
+
+    @PatchMapping("/{studyId}")
+    public ResponseEntity<StudyDetailResponse> updateStudy(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long studyId,
+            @Valid @RequestBody StudyUpdateRequest request) {
+        return ResponseEntity.ok(studyService.updateStudy(userId, studyId, request));
+    }
+
+    @DeleteMapping("/{studyId}")
+    public ResponseEntity<Void> deleteStudy(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long studyId) {
+        studyService.deleteStudy(userId, studyId);
+        return ResponseEntity.noContent().build();
     }
 }

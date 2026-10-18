@@ -52,6 +52,12 @@ public class GlobalExceptionHandler {
         return toResponse(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
     }
 
+    // 403 Forbidden: 권한 없음 (예: 다른 사람의 글 수정/삭제)
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException e) {
+        return toResponse(HttpStatus.FORBIDDEN, e.getMessage());
+    }
+
     // 404 Not Found
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {

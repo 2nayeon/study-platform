@@ -72,4 +72,19 @@ public class Study extends BaseTimeEntity {
     public void increaseViewCount() {
         this.viewCount++;
     }
+
+    public void update(String title, String content, StudyCategory category,
+                       StudyMode mode, String region, int maxMembers,  LocalDate deadline) {
+        this.title = title;
+        this.content = content;
+        this.category = category;
+        this.mode = mode;
+        this.region = region;
+        this.maxMembers = maxMembers;
+        this.deadline  = deadline;
+    }
+
+    public boolean isLeader(Long userId) {
+        return this.leader.getId().equals(userId);
+    }
 }
