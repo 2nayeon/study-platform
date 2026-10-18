@@ -4,7 +4,6 @@ import com.studyplatform.backend.study.entity.Study;
 import com.studyplatform.backend.study.entity.StudyCategory;
 import com.studyplatform.backend.study.entity.StudyMode;
 import com.studyplatform.backend.study.entity.StudyStatus;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
