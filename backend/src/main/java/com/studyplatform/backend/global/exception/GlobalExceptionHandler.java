@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -33,12 +34,6 @@ public class GlobalExceptionHandler {
         return toResponse(HttpStatus.BAD_REQUEST, message);
     }
 
-    // 404 Not Found
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
-        return toResponse(HttpStatus.NOT_FOUND, e.getMessage());
-    }
-
     //400 Bad Request: Service에서 판단한 잘못된 요청
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException e) {
@@ -49,6 +44,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e) {
         return toResponse(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
+    }
+
+    // 400 Bad Request: 경로 변수/쿼리 파라미터 타입 불일치 (예: /api/studies/abc)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return toResponse(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
+    }
+
+    // 404 Not Found
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+        return toResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> toResponse(HttpStatus status, String message) {

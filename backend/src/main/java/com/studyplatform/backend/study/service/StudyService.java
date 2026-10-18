@@ -42,6 +42,16 @@ public class StudyService {
         return StudyDetailResponse.from(studyRepository.save(study));
     }
 
+    @Transactional
+    public StudyDetailResponse getStudy(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new NotFoundException("스터디를 찾을 수 없습니다."));
+
+        study.increaseViewCount();
+
+        return StudyDetailResponse.from(study);
+    }
+
     private String resolveRegion(StudyMode mode, String region) {
         if(mode == StudyMode.ONLINE) {
             return null;

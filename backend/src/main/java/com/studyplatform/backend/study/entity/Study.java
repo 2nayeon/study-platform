@@ -68,4 +68,8 @@ public class Study extends BaseTimeEntity {
         this.status = StudyStatus.RECRUITING;
         this.viewCount = 0;
     }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
