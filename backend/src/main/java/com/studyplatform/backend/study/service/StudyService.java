@@ -1,15 +1,20 @@
 package com.studyplatform.backend.study.service;
 
+import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.global.exception.BadRequestException;
 import com.studyplatform.backend.global.exception.NotFoundException;
 import com.studyplatform.backend.study.dto.StudyCreateRequest;
 import com.studyplatform.backend.study.dto.StudyDetailResponse;
+import com.studyplatform.backend.study.dto.StudySummaryResponse;
 import com.studyplatform.backend.study.entity.Study;
 import com.studyplatform.backend.study.entity.StudyMode;
 import com.studyplatform.backend.study.repository.StudyRepository;
 import com.studyplatform.backend.user.entity.User;
 import com.studyplatform.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -50,6 +55,19 @@ public class StudyService {
         study.increaseViewCount();
 
         return StudyDetailResponse.from(study);
+    }
+
+    public PageResponse<StudySummaryResponse> getStudies(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        PageRequest pageRequest = PageRequest.of(
+            safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<StudySummaryResponse> result = studyRepository.findAll(pageRequest)
+                .map(StudySummaryResponse::from);
+
+        return PageResponse.from(result);
     }
 
     private String resolveRegion(StudyMode mode, String region) {

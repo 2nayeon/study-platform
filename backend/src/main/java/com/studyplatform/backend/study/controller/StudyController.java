@@ -1,7 +1,9 @@
 package com.studyplatform.backend.study.controller;
 
+import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.study.dto.StudyCreateRequest;
 import com.studyplatform.backend.study.dto.StudyDetailResponse;
+import com.studyplatform.backend.study.dto.StudySummaryResponse;
 import com.studyplatform.backend.study.service.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,12 @@ public class StudyController {
     @GetMapping("/{studyId}")
     public ResponseEntity<StudyDetailResponse> getStudy(@PathVariable Long studyId) {
         return ResponseEntity.ok(studyService.getStudy(studyId));
+    }
+
+    @GetMapping
+    public ResponseEntity<PageResponse<StudySummaryResponse>> getStudies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studyService.getStudies(page, size));
     }
 }
