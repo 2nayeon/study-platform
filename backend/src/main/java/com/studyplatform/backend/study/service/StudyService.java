@@ -1,9 +1,8 @@
 package com.studyplatform.backend.study.service;
 
 import com.studyplatform.backend.global.dto.PageResponse;
-import com.studyplatform.backend.global.exception.BadRequestException;
-import com.studyplatform.backend.global.exception.ForbiddenException;
-import com.studyplatform.backend.global.exception.NotFoundException;
+import com.studyplatform.backend.global.exception.BusinessException;
+import com.studyplatform.backend.global.exception.ErrorCode;
 import com.studyplatform.backend.study.dto.StudyCreateRequest;
 import com.studyplatform.backend.study.dto.StudyDetailResponse;
 import com.studyplatform.backend.study.dto.StudySummaryResponse;
@@ -31,7 +30,7 @@ public class StudyService {
     @Transactional
     public StudyDetailResponse createStudy(Long userId, StudyCreateRequest request) {
         User leader = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         String region = resolveRegion(request.mode(), request.region());
 
@@ -103,12 +102,12 @@ public class StudyService {
 
     private Study findStudy(Long studyId) {
         return studyRepository.findById(studyId)
-                .orElseThrow(() -> new NotFoundException("스터디를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STUDY_NOT_FOUND));
     }
 
     private void validateLeader(Study study, Long userId) {
         if(!study.isLeader(userId)) {
-            throw new ForbiddenException("스터디 작성자만 수정 또는 삭제할 수 있습니다.");
+            throw new BusinessException(ErrorCode.NOT_STUDY_LEADER);
         }
     }
 
@@ -118,7 +117,7 @@ public class StudyService {
         }
 
         if(!StringUtils.hasText(region)) {
-            throw new BadRequestException("오프라인 또는 온·오프라인 스터디는 지역을 입력해주세요.");
+            throw new BusinessException(ErrorCode.REGION_REQUIRED);
         }
 
         return region.trim();
