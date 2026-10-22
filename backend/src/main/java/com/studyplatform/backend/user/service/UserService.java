@@ -1,8 +1,7 @@
 package com.studyplatform.backend.user.service;
 
-import com.studyplatform.backend.global.exception.DuplicationException;
-import com.studyplatform.backend.global.exception.LoginFailedException;
-import com.studyplatform.backend.global.exception.NotFoundException;
+import com.studyplatform.backend.global.exception.BusinessException;
+import com.studyplatform.backend.global.exception.ErrorCode;
 import com.studyplatform.backend.global.jwt.JwtProvider;
 import com.studyplatform.backend.user.dto.*;
 import com.studyplatform.backend.user.entity.User;
@@ -23,10 +22,10 @@ public class UserService {
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         if(userRepository.existsByEmail(request.email())) {
-            throw new DuplicationException("이미 사용 중인 이메일입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
         if(userRepository.existsByNickname(request.nickname())) {
-            throw new DuplicationException("이미 사용 중인 닉네임입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
         User user = User.builder()
@@ -40,10 +39,10 @@ public class UserService {
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(LoginFailedException::new);
+                .orElseThrow(() -> new BusinessException(ErrorCode.LOGIN_FAILED));
 
         if(!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new LoginFailedException();
+            throw new BusinessException(ErrorCode.LOGIN_FAILED);
         }
 
         String accessToken = jwtProvider.createAccessToken(user.getId());
@@ -52,7 +51,7 @@ public class UserService {
 
     public MyInfoResponse getMyInfo(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return MyInfoResponse.from(user);
     }
