@@ -1,23 +1,33 @@
 package com.studyplatform.backend.global.jwt;
 
+import com.studyplatform.backend.global.exception.ErrorCode;
+import com.studyplatform.backend.global.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    private final JsonMapper jsonMapper;
+
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+
+        response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"status\":401,\"message\":\"인증이 필요합니다.\"}");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.getWriter().write(jsonMapper.writeValueAsString(ErrorResponse.of(errorCode)));
     }
 }
