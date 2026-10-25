@@ -58,13 +58,14 @@ public class StudyService {
     }
 
     public PageResponse<StudySummaryResponse> getStudies(int page, int size) {
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.min(Math.max(size, 1), 50);
+        Page<StudySummaryResponse> result = studyRepository.findAll(createLatestPageRequest(page, size))
+                .map(StudySummaryResponse::from);
 
-        PageRequest pageRequest = PageRequest.of(
-            safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return PageResponse.from(result);
+    }
 
-        Page<StudySummaryResponse> result = studyRepository.findAll(pageRequest)
+    public PageResponse<StudySummaryResponse> getMyStudies(Long userId, int page, int size) {
+        Page<StudySummaryResponse> result = studyRepository.findByLeaderId(userId, createLatestPageRequest(page, size))
                 .map(StudySummaryResponse::from);
 
         return PageResponse.from(result);
@@ -106,17 +107,17 @@ public class StudyService {
     }
 
     private void validateLeader(Study study, Long userId) {
-        if(!study.isLeader(userId)) {
+        if (!study.isLeader(userId)) {
             throw new BusinessException(ErrorCode.NOT_STUDY_LEADER);
         }
     }
 
     private String resolveRegion(StudyMode mode, String region) {
-        if(mode == StudyMode.ONLINE) {
+        if (mode == StudyMode.ONLINE) {
             return null;
         }
 
-        if(!StringUtils.hasText(region)) {
+        if (!StringUtils.hasText(region)) {
             throw new BusinessException(ErrorCode.REGION_REQUIRED);
         }
 
@@ -125,6 +126,14 @@ public class StudyService {
 
     private <T> T valueOrCurrent(T newValue, T currentValue) {
         return newValue != null ? newValue : currentValue;
+    }
+
+    private PageRequest createLatestPageRequest(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        return PageRequest.of(
+                safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 }
 

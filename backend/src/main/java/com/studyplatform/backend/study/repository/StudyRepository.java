@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface StudyRepository extends JpaRepository<Study, Long> {
     @EntityGraph(attributePaths = "leader")
     Page<Study> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = "leader")
+    Page<Study> findByLeaderId(Long userId, Pageable pageable);
 }
