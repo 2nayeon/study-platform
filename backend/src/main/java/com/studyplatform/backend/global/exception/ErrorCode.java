@@ -20,8 +20,11 @@ public enum ErrorCode {
 
     // ===== 스터디 =====
     STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "스터디를 찾을 수 없습니다."),
-    NOT_STUDY_LEADER(HttpStatus.FORBIDDEN, "스터디 작성자만 수정 또는 삭제할 수 있습니다."),
-    REGION_REQUIRED(HttpStatus.BAD_REQUEST, "오프라인 또는 온·오프라인 스터디는 지역을 입력해주세요.");
+    NOT_STUDY_LEADER(HttpStatus.FORBIDDEN, "스터디 작성자만 할 수 있는 작업입니다."),
+    REGION_REQUIRED(HttpStatus.BAD_REQUEST, "오프라인 또는 온·오프라인 스터디는 지역을 입력해주세요."),
+    STUDY_ALREADY_CLOSED(HttpStatus.CONFLICT, "이미 마감된 스터디입니다."),
+    STUDY_ALREADY_RECRUITING(HttpStatus.CONFLICT, "이미 모집 중인 스터디입니다."),
+    STUDY_DEADLINE_PASSED(HttpStatus.CONFLICT, "마감일이 지난 스터디는 모집을 재개할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;
