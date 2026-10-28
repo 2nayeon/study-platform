@@ -58,7 +58,7 @@ public class Study extends BaseTimeEntity {
     @Builder
     private Study(User leader, String title, String content,
                   StudyCategory category, StudyMode mode, String region,
-                  int maxMembers, LocalDate deadline, StudyStatus status) {
+                  int maxMembers, LocalDate deadline) {
         this.leader = leader;
         this.title = title;
         this.content = content;
