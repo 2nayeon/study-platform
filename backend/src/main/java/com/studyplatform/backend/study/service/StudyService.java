@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -89,6 +91,28 @@ public class StudyService {
                 valueOrCurrent(request.deadline(), study.getDeadline())
         );
 
+        studyRepository.flush();
+
+        return StudyDetailResponse.from(study);
+    }
+
+    @Transactional
+    public StudyDetailResponse closeStudy(Long userId, Long studyId) {
+        Study study = findStudy(studyId);
+        validateLeader(study, userId);
+
+        study.close();
+        studyRepository.flush();
+
+        return StudyDetailResponse.from(study);
+    }
+
+    @Transactional
+    public StudyDetailResponse reopenStudy(Long userId, Long studyId) {
+        Study study = findStudy(studyId);
+        validateLeader(study, userId);
+
+        study.reopen(LocalDate.now());
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);

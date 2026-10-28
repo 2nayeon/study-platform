@@ -48,6 +48,20 @@ public class StudyController {
         return ResponseEntity.ok(studyService.updateStudy(userId, studyId, request));
     }
 
+    @PatchMapping("/{studyId}/close")
+    public ResponseEntity<StudyDetailResponse> closeStudy(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long studyId) {
+        return ResponseEntity.ok(studyService.closeStudy(userId, studyId));
+    }
+
+    @PatchMapping("/{studyId}/reopen")
+    public ResponseEntity<StudyDetailResponse> reopenStudy(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long studyId) {
+        return ResponseEntity.ok(studyService.reopenStudy(userId, studyId));
+    }
+
     @DeleteMapping("/{studyId}")
     public ResponseEntity<Void> deleteStudy(
             @AuthenticationPrincipal Long userId,
