@@ -1,6 +1,8 @@
 package com.studyplatform.backend.study.entity;
 
 import com.studyplatform.backend.global.entity.BaseTimeEntity;
+import com.studyplatform.backend.global.exception.BusinessException;
+import com.studyplatform.backend.global.exception.ErrorCode;
 import com.studyplatform.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -69,10 +71,6 @@ public class Study extends BaseTimeEntity {
         this.viewCount = 0;
     }
 
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
     public void update(String title, String content, StudyCategory category,
                        StudyMode mode, String region, int maxMembers,  LocalDate deadline) {
         this.title = title;
@@ -82,6 +80,27 @@ public class Study extends BaseTimeEntity {
         this.region = region;
         this.maxMembers = maxMembers;
         this.deadline  = deadline;
+    }
+
+    public void close() {
+        if(this.status == StudyStatus.CLOSED) {
+            throw new BusinessException(ErrorCode.STUDY_ALREADY_CLOSED);
+        }
+        this.status = StudyStatus.CLOSED;
+    }
+
+    public void reopen(LocalDate today) {
+        if(this.status == StudyStatus.RECRUITING) {
+            throw new BusinessException(ErrorCode.STUDY_ALREADY_RECRUITING);
+        }
+        if(today.isAfter(this.deadline)) {
+            throw new BusinessException(ErrorCode.STUDY_DEADLINE_PASSED);
+        }
+        this.status = StudyStatus.RECRUITING;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 
     public boolean isLeader(Long userId) {
