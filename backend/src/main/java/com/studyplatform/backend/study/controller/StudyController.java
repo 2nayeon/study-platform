@@ -1,13 +1,11 @@
 package com.studyplatform.backend.study.controller;
 
 import com.studyplatform.backend.global.dto.PageResponse;
-import com.studyplatform.backend.study.dto.StudyCreateRequest;
-import com.studyplatform.backend.study.dto.StudyDetailResponse;
-import com.studyplatform.backend.study.dto.StudySummaryResponse;
-import com.studyplatform.backend.study.dto.StudyUpdateRequest;
+import com.studyplatform.backend.study.dto.*;
 import com.studyplatform.backend.study.service.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,9 +33,10 @@ public class StudyController {
 
     @GetMapping
     public ResponseEntity<PageResponse<StudySummaryResponse>> getStudies(
+            @ParameterObject @ModelAttribute StudySearchCondition condition,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(studyService.getStudies(page, size));
+        return ResponseEntity.ok(studyService.getStudies(condition, page, size));
     }
 
     @PatchMapping("/{studyId}")
