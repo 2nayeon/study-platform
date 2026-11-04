@@ -18,10 +18,15 @@ public class GlobalExceptionHandler {
     // 400: @Valid 검증 실패 -> 첫 번째 필드의 메시지 사용
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getFieldErrors().stream()
-                .findFirst()
-                .map(FieldError::getDefaultMessage)
-                .orElse(ErrorCode.INVALID_INPUT.getMessage());
+        FieldError fieldError = e.getBindingResult().getFieldError();
+
+        if (fieldError != null && fieldError.isBindingFailure()) {
+            return toResponse(ErrorCode.INVALID_REQUEST_FORMAT);
+        }
+
+        String message = fieldError != null && fieldError.getDefaultMessage() != null
+                ? fieldError.getDefaultMessage()
+                : ErrorCode.INVALID_INPUT.getMessage();
         return toResponse(ErrorCode.INVALID_INPUT, message);
     }
 
