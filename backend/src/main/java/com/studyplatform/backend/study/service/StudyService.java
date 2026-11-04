@@ -3,20 +3,20 @@ package com.studyplatform.backend.study.service;
 import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.global.exception.BusinessException;
 import com.studyplatform.backend.global.exception.ErrorCode;
-import com.studyplatform.backend.study.dto.StudyCreateRequest;
-import com.studyplatform.backend.study.dto.StudyDetailResponse;
-import com.studyplatform.backend.study.dto.StudySummaryResponse;
-import com.studyplatform.backend.study.dto.StudyUpdateRequest;
+import com.studyplatform.backend.study.dto.*;
 import com.studyplatform.backend.study.entity.Study;
 import com.studyplatform.backend.study.entity.StudyMode;
 import com.studyplatform.backend.study.entity.StudySort;
 import com.studyplatform.backend.study.repository.StudyRepository;
+import com.studyplatform.backend.study.repository.StudySpecification;
 import com.studyplatform.backend.user.entity.User;
 import com.studyplatform.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -60,8 +60,11 @@ public class StudyService {
         return StudyDetailResponse.from(study);
     }
 
-    public PageResponse<StudySummaryResponse> getStudies(int page, int size) {
-        Page<StudySummaryResponse> result = studyRepository.findAll(createPageRequest(page, size, StudySort.LATEST))
+    public PageResponse<StudySummaryResponse> getStudies(StudySearchCondition condition, int page, int size) {
+        Specification<Study> spec = createSpecification(condition, LocalDate.now());
+        Pageable pageable = createPageRequest(page, size, condition.sort());
+
+        Page<StudySummaryResponse> result = studyRepository.findAll(spec, pageable)
                 .map(StudySummaryResponse::from);
 
         return PageResponse.from(result);
@@ -141,7 +144,6 @@ public class StudyService {
         if (mode == StudyMode.ONLINE) {
             return null;
         }
-
         if (!StringUtils.hasText(region)) {
             throw new BusinessException(ErrorCode.REGION_REQUIRED);
         }
@@ -151,6 +153,25 @@ public class StudyService {
 
     private <T> T valueOrCurrent(T newValue, T currentValue) {
         return newValue != null ? newValue : currentValue;
+    }
+
+    private Specification<Study> createSpecification(StudySearchCondition condition, LocalDate today) {
+        Specification<Study> spec = Specification.unrestricted();
+
+        if (condition.category() != null) {
+            spec = spec.and(StudySpecification.hasCategory(condition.category()));
+        }
+        if (condition.status() != null) {
+            spec = spec.and(StudySpecification.hasStatus(condition.status()));
+        }
+        if (condition.keyword() != null) {
+            spec = spec.and(StudySpecification.titleContains(condition.keyword()));
+        }
+        if (condition.excludeClosed()) {
+            spec = spec.and(StudySpecification.isRecruitable(today));
+        }
+
+        return spec;
     }
 
     private PageRequest createPageRequest(int page, int size, StudySort sort) {
