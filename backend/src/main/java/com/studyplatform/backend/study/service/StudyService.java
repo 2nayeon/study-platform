@@ -9,6 +9,7 @@ import com.studyplatform.backend.study.dto.StudySummaryResponse;
 import com.studyplatform.backend.study.dto.StudyUpdateRequest;
 import com.studyplatform.backend.study.entity.Study;
 import com.studyplatform.backend.study.entity.StudyMode;
+import com.studyplatform.backend.study.entity.StudySort;
 import com.studyplatform.backend.study.repository.StudyRepository;
 import com.studyplatform.backend.user.entity.User;
 import com.studyplatform.backend.user.repository.UserRepository;
@@ -60,14 +61,14 @@ public class StudyService {
     }
 
     public PageResponse<StudySummaryResponse> getStudies(int page, int size) {
-        Page<StudySummaryResponse> result = studyRepository.findAll(createLatestPageRequest(page, size))
+        Page<StudySummaryResponse> result = studyRepository.findAll(createPageRequest(page, size, StudySort.LATEST))
                 .map(StudySummaryResponse::from);
 
         return PageResponse.from(result);
     }
 
     public PageResponse<StudySummaryResponse> getMyStudies(Long userId, int page, int size) {
-        Page<StudySummaryResponse> result = studyRepository.findByLeaderId(userId, createLatestPageRequest(page, size))
+        Page<StudySummaryResponse> result = studyRepository.findByLeaderId(userId, createPageRequest(page, size, StudySort.LATEST))
                 .map(StudySummaryResponse::from);
 
         return PageResponse.from(result);
@@ -152,12 +153,11 @@ public class StudyService {
         return newValue != null ? newValue : currentValue;
     }
 
-    private PageRequest createLatestPageRequest(int page, int size) {
+    private PageRequest createPageRequest(int page, int size, StudySort sort) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
 
-        return PageRequest.of(
-                safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return PageRequest.of(safePage, safeSize, sort.getSort());
     }
 }
 
