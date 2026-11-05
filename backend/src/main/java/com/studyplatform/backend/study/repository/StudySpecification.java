@@ -3,6 +3,9 @@ package com.studyplatform.backend.study.repository;
 import com.studyplatform.backend.study.entity.Study;
 import com.studyplatform.backend.study.entity.StudyCategory;
 import com.studyplatform.backend.study.entity.StudyStatus;
+import com.studyplatform.backend.study.entity.StudyTag;
+import com.studyplatform.backend.tag.entity.Tag;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -28,5 +31,13 @@ public final class StudySpecification {
                 cb.equal(root.get("status"), StudyStatus.RECRUITING),
                 cb.greaterThanOrEqualTo(root.<LocalDate>get("deadline"), today)
         );
+    }
+
+    public static Specification<Study> hasTag(String tagName) {
+        return (root, query, cb) -> {
+            Join<Study, StudyTag> studyTag = root.join("studyTags");
+            Join<StudyTag, Tag> tag = studyTag.join("tag");
+            return cb.equal(tag.get("name"), tagName);
+        };
     }
 }

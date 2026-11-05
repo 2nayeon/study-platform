@@ -180,6 +180,9 @@ public class StudyService {
         if (condition.excludeClosed()) {
             spec = spec.and(StudySpecification.isRecruitable(today));
         }
+        if (condition.tag() != null) {
+            spec = spec.and(StudySpecification.hasTag(condition.tag()));
+        }
 
         return spec;
     }
