@@ -5,6 +5,7 @@ import com.studyplatform.backend.study.entity.StudyMode;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record StudyUpdateRequest(
         @Size(max = 100, message = "제목은 100자 이하로 입력해주세요.")
@@ -26,6 +27,12 @@ public record StudyUpdateRequest(
         Integer maxMembers,
 
         @FutureOrPresent(message = "모집 마감일은 오늘 이후여야 합니다.")
-        LocalDate deadline
+        LocalDate deadline,
+
+        @Size(max = 5, message = "태그는 최대 5개까지 입력할 수 있습니다.")
+        List<
+                @NotBlank(message = "태그는 공백일 수 없습니다.")
+                @Size(max = 20, message = "태그는 20자 이하로 입력해주세요.")
+                        String> tags
 ) {
 }

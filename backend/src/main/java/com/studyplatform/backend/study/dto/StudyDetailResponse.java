@@ -7,6 +7,7 @@ import com.studyplatform.backend.study.entity.StudyStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record StudyDetailResponse(
         Long id,
@@ -19,6 +20,7 @@ public record StudyDetailResponse(
         LocalDate deadline,
         StudyStatus status,
         int viewCount,
+        List<String> tags,
         Long leaderId,
         String leaderNickname,
         LocalDateTime createdAt,
@@ -36,6 +38,7 @@ public record StudyDetailResponse(
                 study.getDeadline(),
                 study.getStatus(),
                 study.getViewCount(),
+                study.getTagNames(),
                 study.getLeader().getId(),
                 study.getLeader().getNickname(),
                 study.getCreatedAt(),
