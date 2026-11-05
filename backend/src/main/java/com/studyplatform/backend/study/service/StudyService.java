@@ -9,6 +9,7 @@ import com.studyplatform.backend.study.entity.StudyMode;
 import com.studyplatform.backend.study.entity.StudySort;
 import com.studyplatform.backend.study.repository.StudyRepository;
 import com.studyplatform.backend.study.repository.StudySpecification;
+import com.studyplatform.backend.tag.service.TagService;
 import com.studyplatform.backend.user.entity.User;
 import com.studyplatform.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ import java.time.LocalDate;
 public class StudyService {
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
+    private final TagService tagService;
 
     @Transactional
     public StudyDetailResponse createStudy(Long userId, StudyCreateRequest request) {
@@ -47,6 +50,9 @@ public class StudyService {
                 .maxMembers(request.maxMembers())
                 .deadline(request.deadline())
                 .build();
+
+        List<String> tagNames = request.tags() != null ? request.tags() : List.of();
+        study.updateTags(tagService.findOrCreateTags(tagNames));
 
         return StudyDetailResponse.from(studyRepository.save(study));
     }
@@ -94,6 +100,10 @@ public class StudyService {
                 valueOrCurrent(request.maxMembers(), study.getMaxMembers()),
                 valueOrCurrent(request.deadline(), study.getDeadline())
         );
+
+        if (request.tags() != null) {
+            study.updateTags(tagService.findOrCreateTags(request.tags()));
+        }
 
         studyRepository.flush();
 
@@ -169,6 +179,9 @@ public class StudyService {
         }
         if (condition.excludeClosed()) {
             spec = spec.and(StudySpecification.isRecruitable(today));
+        }
+        if (condition.tag() != null) {
+            spec = spec.and(StudySpecification.hasTag(condition.tag()));
         }
 
         return spec;

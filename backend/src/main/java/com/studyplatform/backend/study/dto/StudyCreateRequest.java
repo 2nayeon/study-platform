@@ -3,8 +3,10 @@ package com.studyplatform.backend.study.dto;
 import com.studyplatform.backend.study.entity.StudyCategory;
 import com.studyplatform.backend.study.entity.StudyMode;
 import jakarta.validation.constraints.*;
+import org.aspectj.bridge.IMessage;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record StudyCreateRequest(
         @NotBlank(message = "제목을 입력해주세요.")
@@ -30,6 +32,12 @@ public record StudyCreateRequest(
 
         @NotNull(message = "모집 마감일을 입력해주세요.")
         @FutureOrPresent(message = "모집 마감일은 오늘 이후여야 합니다.")
-        LocalDate deadline
+        LocalDate deadline,
+
+        @Size(max = 5, message = "태그는 최대 5개까지 입력할 수 있습니다.")
+        List<
+                @NotBlank(message = "태그는 공백일 수 없습니다.")
+                @Size(max = 20, message = "태그는 20자 이하로 입력해주세요.")
+                        String> tags
 ) {
 }

@@ -3,6 +3,7 @@ package com.studyplatform.backend.study.entity;
 import com.studyplatform.backend.global.entity.BaseTimeEntity;
 import com.studyplatform.backend.global.exception.BusinessException;
 import com.studyplatform.backend.global.exception.ErrorCode;
+import com.studyplatform.backend.tag.entity.Tag;
 import com.studyplatform.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,6 +12,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "studies")
@@ -55,6 +60,10 @@ public class Study extends BaseTimeEntity {
     @Column(nullable = false)
     private int viewCount;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    private List<StudyTag> studyTags = new ArrayList<>();
+
     @Builder
     private Study(User leader, String title, String content,
                   StudyCategory category, StudyMode mode, String region,
@@ -80,6 +89,30 @@ public class Study extends BaseTimeEntity {
         this.region = region;
         this.maxMembers = maxMembers;
         this.deadline  = deadline;
+    }
+
+    public void updateTags(List<Tag> tags) {
+        Set<Long> newTagIds = tags.stream()
+                .map(Tag::getId)
+                .collect(Collectors.toSet());
+
+        this.studyTags.removeIf(studyTag -> !newTagIds.contains(studyTag.getTag().getId()));
+
+        Set<Long> currentTagIds = this.studyTags.stream()
+                .map(studyTag -> studyTag.getTag().getId())
+                .collect(Collectors.toSet());
+
+        for (Tag tag : tags) {
+            if (!currentTagIds.contains(tag.getId())) {
+                this.studyTags.add(new StudyTag(this, tag));
+            }
+        }
+    }
+
+    public List<String> getTagNames() {
+        return this.studyTags.stream()
+                .map(studyTag -> studyTag.getTag().getName())
+                .toList();
     }
 
     public void close() {
