@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/studies")
 @RequiredArgsConstructor
@@ -37,6 +39,11 @@ public class StudyController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(studyService.getStudies(condition, page, size));
+    }
+
+    @GetMapping("/{studyId}/members")
+    public ResponseEntity<List<StudyMemberResponse>> getMembers(@PathVariable Long studyId) {
+        return ResponseEntity.ok(studyService.getMembers(studyId));
     }
 
     @PatchMapping("/{studyId}")
