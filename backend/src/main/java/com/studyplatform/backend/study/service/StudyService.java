@@ -1,5 +1,6 @@
 package com.studyplatform.backend.study.service;
 
+import com.studyplatform.backend.application.repository.ApplicationRepository;
 import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.global.exception.BusinessException;
 import com.studyplatform.backend.global.exception.ErrorCode;
@@ -34,6 +35,7 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
     private final StudyMemberRepository studyMemberRepository;
+    private final ApplicationRepository applicationRepository;
     private final TagService tagService;
 
     @Transactional
@@ -151,6 +153,7 @@ public class StudyService {
         Study study = findStudy(studyId);
         validateLeader(study, userId);
 
+        applicationRepository.deleteByStudyId(studyId);
         studyMemberRepository.deleteByStudyId(studyId);
         studyRepository.delete(study);
     }

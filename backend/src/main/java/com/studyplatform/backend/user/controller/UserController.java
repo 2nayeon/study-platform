@@ -1,5 +1,7 @@
 package com.studyplatform.backend.user.controller;
 
+import com.studyplatform.backend.application.dto.ApplicationResponse;
+import com.studyplatform.backend.application.service.ApplicationService;
 import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.study.dto.StudySummaryResponse;
 import com.studyplatform.backend.study.service.StudyService;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final StudyService studyService;
+    private final ApplicationService applicationService;
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
@@ -41,5 +44,13 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(studyService.getMyStudies(userId, page, size));
+    }
+
+    @GetMapping("/me/applications")
+    public ResponseEntity<PageResponse<ApplicationResponse>> getMyApplications(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(applicationService.getMyApplications(userId, page, size));
     }
 }
