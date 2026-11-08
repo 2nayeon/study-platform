@@ -104,6 +104,11 @@ public class StudyService {
         Study study = findStudy(studyId);
         validateLeader(study, userId);
 
+        long currentMembers = studyMemberRepository.countByStudy_Id(studyId);
+        if (request.maxMembers() != null && request.maxMembers() < currentMembers) {
+            throw new BusinessException(ErrorCode.MAX_MEMBERS_BELOW_CURRENT);
+        }
+
         StudyMode mode = valueOrCurrent(request.mode(), study.getMode());
         String region = resolveRegion(mode, valueOrCurrent(request.region(), study.getRegion()));
 
@@ -121,6 +126,7 @@ public class StudyService {
             study.updateTags(tagService.findOrCreateTags(request.tags()));
         }
 
+        study.closeIfFull(currentMembers);
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);
@@ -143,6 +149,7 @@ public class StudyService {
         validateLeader(study, userId);
 
         study.reopen(LocalDate.now());
+        study.validateNotFull(studyMemberRepository.countByStudy_Id(studyId));
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);

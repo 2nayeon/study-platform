@@ -4,6 +4,7 @@ import com.studyplatform.backend.global.entity.BaseTimeEntity;
 import com.studyplatform.backend.global.exception.BusinessException;
 import com.studyplatform.backend.global.exception.ErrorCode;
 import com.studyplatform.backend.study.entity.Study;
+import com.studyplatform.backend.study.entity.StudyStatus;
 import com.studyplatform.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -48,6 +49,16 @@ public class Application extends BaseTimeEntity {
 
     public boolean isApplicant(Long userId) {
         return this.applicant.getId().equals(userId);
+    }
+
+    public void approve() {
+        validatePending();
+        this.status = ApplicationStatus.APPROVED;
+    }
+
+    public void reject() {
+        validatePending();
+        this.status = ApplicationStatus.REJECTED;
     }
 
     public void validateCancelable() {

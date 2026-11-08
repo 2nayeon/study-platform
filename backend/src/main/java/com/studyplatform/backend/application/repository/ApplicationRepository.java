@@ -1,6 +1,7 @@
 package com.studyplatform.backend.application.repository;
 
 import com.studyplatform.backend.application.entity.Application;
+import com.studyplatform.backend.application.entity.ApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -14,6 +15,12 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @EntityGraph(attributePaths = {"study", "applicant"})
     Page<Application> findByApplicantId(Long applicantId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"study", "applicant"})
+    Page<Application> findByStudyId(Long studyId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"study", "applicant"})
+    Page<Application> findByStudyIdAndStatus(Long studyId, ApplicationStatus status, Pageable pageable);
 
     @Modifying
     @Query("DELETE FROM Application a WHERE a.study.id = :studyId")

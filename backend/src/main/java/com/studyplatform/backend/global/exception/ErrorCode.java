@@ -30,6 +30,8 @@ public enum ErrorCode {
     STUDY_ALREADY_RECRUITING(HttpStatus.CONFLICT, "이미 모집 중인 스터디입니다."),
     STUDY_DEADLINE_PASSED(HttpStatus.CONFLICT, "마감일이 지난 스터디는 모집을 재개할 수 없습니다."),
     STUDY_NOT_RECRUITING(HttpStatus.CONFLICT, "모집 중인 스터디가 아닙니다."),
+    STUDY_FULL(HttpStatus.CONFLICT, "모집 정원이 가득 찼습니다."),
+    MAX_MEMBERS_BELOW_CURRENT(HttpStatus.CONFLICT, "모집 정원은 현재 인원보다 적을 수 없습니다."),
 
     // ===== 신청 =====
     APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "신청 내역을 찾을 수 없습니다."),

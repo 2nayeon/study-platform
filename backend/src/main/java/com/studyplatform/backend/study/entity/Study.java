@@ -138,6 +138,18 @@ public class Study extends BaseTimeEntity {
         }
     }
 
+    public void validateNotFull(long currentMembers) {
+        if (currentMembers >= this.maxMembers) {
+            throw new BusinessException(ErrorCode.STUDY_FULL);
+        }
+    }
+
+    public void closeIfFull(long currentMembers) {
+        if (this.status == StudyStatus.RECRUITING && currentMembers >= this.maxMembers) {
+            this.status = StudyStatus.CLOSED;
+        }
+    }
+
     public void increaseViewCount() {
         this.viewCount++;
     }
