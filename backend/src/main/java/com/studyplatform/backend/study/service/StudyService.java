@@ -1,12 +1,15 @@
 package com.studyplatform.backend.study.service;
 
+import com.studyplatform.backend.application.repository.ApplicationRepository;
 import com.studyplatform.backend.global.dto.PageResponse;
 import com.studyplatform.backend.global.exception.BusinessException;
 import com.studyplatform.backend.global.exception.ErrorCode;
 import com.studyplatform.backend.study.dto.*;
 import com.studyplatform.backend.study.entity.Study;
+import com.studyplatform.backend.study.entity.StudyMember;
 import com.studyplatform.backend.study.entity.StudyMode;
 import com.studyplatform.backend.study.entity.StudySort;
+import com.studyplatform.backend.study.repository.StudyMemberRepository;
 import com.studyplatform.backend.study.repository.StudyRepository;
 import com.studyplatform.backend.study.repository.StudySpecification;
 import com.studyplatform.backend.tag.service.TagService;
@@ -31,6 +34,8 @@ import java.util.List;
 public class StudyService {
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
+    private final StudyMemberRepository studyMemberRepository;
+    private final ApplicationRepository applicationRepository;
     private final TagService tagService;
 
     @Transactional
@@ -53,6 +58,9 @@ public class StudyService {
 
         List<String> tagNames = request.tags() != null ? request.tags() : List.of();
         study.updateTags(tagService.findOrCreateTags(tagNames));
+
+        Study saveStudy = studyRepository.save(study);
+        studyMemberRepository.save(StudyMember.leader(saveStudy, leader));
 
         return StudyDetailResponse.from(studyRepository.save(study));
     }
@@ -83,10 +91,23 @@ public class StudyService {
         return PageResponse.from(result);
     }
 
+    public List<StudyMemberResponse> getMembers(Long studyId) {
+        findStudy(studyId);
+
+        return studyMemberRepository.findByStudyIdOrderByIdAsc(studyId).stream()
+                .map(StudyMemberResponse::from)
+                .toList();
+    }
+
     @Transactional
     public StudyDetailResponse updateStudy(Long userId, Long studyId, StudyUpdateRequest request) {
         Study study = findStudy(studyId);
         validateLeader(study, userId);
+
+        long currentMembers = studyMemberRepository.countByStudyId(studyId);
+        if (request.maxMembers() != null && request.maxMembers() < currentMembers) {
+            throw new BusinessException(ErrorCode.MAX_MEMBERS_BELOW_CURRENT);
+        }
 
         StudyMode mode = valueOrCurrent(request.mode(), study.getMode());
         String region = resolveRegion(mode, valueOrCurrent(request.region(), study.getRegion()));
@@ -105,6 +126,7 @@ public class StudyService {
             study.updateTags(tagService.findOrCreateTags(request.tags()));
         }
 
+        study.closeIfFull(currentMembers);
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);
@@ -127,6 +149,7 @@ public class StudyService {
         validateLeader(study, userId);
 
         study.reopen(LocalDate.now());
+        study.validateNotFull(studyMemberRepository.countByStudyId(studyId));
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);
@@ -136,6 +159,9 @@ public class StudyService {
     public void deleteStudy(Long userId, Long studyId) {
         Study study = findStudy(studyId);
         validateLeader(study, userId);
+
+        applicationRepository.deleteByStudyId(studyId);
+        studyMemberRepository.deleteByStudyId(studyId);
         studyRepository.delete(study);
     }
 
