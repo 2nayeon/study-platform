@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
-    long countByStudy_Id(Long studyId);
+    long countByStudyId(Long studyId);
 
     @EntityGraph(attributePaths = "user")
     List<StudyMember> findByStudyIdOrderByIdAsc(Long studyId);

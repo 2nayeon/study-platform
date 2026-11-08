@@ -104,7 +104,7 @@ public class StudyService {
         Study study = findStudy(studyId);
         validateLeader(study, userId);
 
-        long currentMembers = studyMemberRepository.countByStudy_Id(studyId);
+        long currentMembers = studyMemberRepository.countByStudyId(studyId);
         if (request.maxMembers() != null && request.maxMembers() < currentMembers) {
             throw new BusinessException(ErrorCode.MAX_MEMBERS_BELOW_CURRENT);
         }
@@ -149,7 +149,7 @@ public class StudyService {
         validateLeader(study, userId);
 
         study.reopen(LocalDate.now());
-        study.validateNotFull(studyMemberRepository.countByStudy_Id(studyId));
+        study.validateNotFull(studyMemberRepository.countByStudyId(studyId));
         studyRepository.flush();
 
         return StudyDetailResponse.from(study);

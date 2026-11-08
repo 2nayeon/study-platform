@@ -89,7 +89,7 @@ public class ApplicationService {
 
         application.approve();
 
-        long currentMembers = studyMemberRepository.countByStudy_Id(study.getId());
+        long currentMembers = studyMemberRepository.countByStudyId(study.getId());
         study.validateNotFull(currentMembers);
 
         studyMemberRepository.save(StudyMember.member(study, application.getApplicant()));
